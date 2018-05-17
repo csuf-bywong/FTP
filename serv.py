@@ -26,7 +26,7 @@ def recvAll(sock, numBytes):
 
 #make sure there are enough command line arguments
 if len(sys.argv) != 2:
-    print "USAGE python3 " + sys.argv[0] + " <port_number>"
+    print("USAGE python3 " , sys.argv[0] , " <port_number>")
     sys.exit()
 
 #the port on which to listen
@@ -41,7 +41,7 @@ serverSocket.bind(('', serverPort))
 #start listening for connections
 serverSocket.listen(1)
 
-print "The server is ready to receive"
+print("The server is ready to receive")
 
 #forever accept incoming connections
 while 1:
@@ -57,13 +57,13 @@ while 1:
         cmd = connectionSocket.recv(4)
 
         if cmd == "quit":
-            print "received " + cmd
+            print("received " , cmd)
             connectionSocket.send("0")
             break
 
         elif command == "ls":
             ephPort = int(connectionSocket.recv(10))
-            print "Received ephemeral port: " + ephPort
+            print("Received ephemeral port: " , ephPort)
 
             #create connection for data transfer
             servDataSock = socket(AF_INET, SOCK_STREAM)
