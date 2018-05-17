@@ -11,6 +11,14 @@ import os.path
 # @param numBytes - the number of bytes to receive
 # @return - the bytes received
 # *************************************************
+def tobits(s):
+    result = []
+    for c in s:
+        bits = bin(ord(c))[2:]
+        bits = '00000000'[len(bits):] + bits
+        result.extend([int(b) for b in bits])
+    return result
+
 def recvAll(sock, numBytes):
 
 	# The buffer
@@ -49,22 +57,26 @@ serverIP = gethostbyname(serverName)
 clientSocket = socket(AF_INET, SOCK_STREAM)
 
 #connect to the serverPort
-clientSocket.connect((serverIP, int(serverPort)))
+serverPort = int(serverPort)
+clientSocket.connect((serverIP, serverPort))
 
 while True:
     #determine if client is still connected to server
     flag = clientSocket.recv(9)
+    print(flag)
+    flag = 1
 
-    while flag == "1":
+    while flag == 1:
         #get user input
         cmd = input("ftp> ").split(" ")
 
         if cmd[0] == "get":
             if len(cmd) != 2:
                 print("USAGE get <file_name>")
+                clientSocket.close()
             else:
-                clientSocket.send(cmd[0])
-                clientSocket.send(cmd[1])
+                clientSocket.sendall(cmd[0].encode('utf-8'))
+                clientSocket.sendall(cmd[1].encode('utf-8'))
                 print(cmd[0] , " " , cmd[1])
 
             #create ephemereal port
@@ -105,8 +117,8 @@ while True:
             connectionSocket.close()
 
         #elif command[0] == "put":
-        elif command[0] == "ls":
-            clientSocket.send(cmd[0])
+        elif cmd[0] == "ls":
+            clientSocket.sendall(cmd[0].encode('utf-8'))
 
             #the buffer to store server data
             servData = ""
@@ -116,9 +128,9 @@ while True:
 
             #generate ephemeral port
             dataSocket = socket(AF_INET, SOCK_STREAM)
-            dataSocket.bind("", 0)
+            dataSocket.bind(("", 0))
             print("I choose ephemeral port: " , dataSocket.getsockname()[1])
-            clientSocket.send(str(dataSocket.getsockname()[1]))
+            clientSocket.sendall((str(dataSocket.getsockname()[1])).encode('utf-8'))
             dataSocket.listen(1)
 
             while 1:
@@ -141,7 +153,7 @@ while True:
 
         #elif cmd[0] == "lls":
         elif cmd[0] == "quit":
-            clientSocket.send(cmd[0])
+            clientSocket.sendall(cmd[0].encode('utf-8'))
             flag = clientSocket.recv(9)
             break
         elif cmd[0] == "":

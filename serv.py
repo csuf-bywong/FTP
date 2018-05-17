@@ -39,7 +39,7 @@ serverSocket = socket(AF_INET, SOCK_STREAM)
 serverSocket.bind(('', serverPort))
 
 #start listening for connections
-serverSocket.listen(1)
+serverSocket.listen(100)
 
 print("The server is ready to receive")
 
@@ -61,7 +61,7 @@ while 1:
             connectionSocket.send("0")
             break
 
-        elif command == "ls":
+        elif cmd == "ls":
             ephPort = int(connectionSocket.recv(10))
             print("Received ephemeral port: " , ephPort)
 
