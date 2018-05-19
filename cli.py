@@ -59,8 +59,8 @@ while True:
 
     while flag == 1:
         #get user input
-        cmd = raw_input("ftp>").split(" ")
-        #cmd = input("ftp> ").split(" ")
+        #cmd = raw_input("ftp>").split(" ")
+        cmd = input("ftp> ").split(" ")
 
         if cmd[0] == "get":
             if len(cmd) != 2:
@@ -130,11 +130,14 @@ while True:
                 connectionSocket, addr = dataSocket.accept()
 
                 #get size of incoming data from server
-                servSize = recvAll(connectionSocket, 10)
+                #servSize = recvAll(connectionSocket, 10)
+                servSize = connectionSocket.recv(10)
                 servSize = int(servSize)
 
                 #get the data from the server
-                servData = recvAll(connectionSocket, servSize)
+                #servData = recvAll(connectionSocket, servSize)
+                servData = connectionSocket.recv(10000)
+                servData = servData[2:1]
 
                 print("Size: " , servSize , "Received:")
                 print(servData)
