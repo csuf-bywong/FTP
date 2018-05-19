@@ -1,6 +1,8 @@
-from socket import *
+import socket
+#from socket import *
 import os
 import sys
+from os import listdir
 
 def recvAll(sock, numBytes):
 	# The buffer
@@ -33,7 +35,7 @@ if len(sys.argv) != 2:
 serverPort = int(sys.argv[1])
 
 #create a TCP socket
-serverSocket = socket(AF_INET, SOCK_STREAM)
+serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 #bind the socket to the serverPort
 serverSocket.bind(('', serverPort))
@@ -49,16 +51,18 @@ while 1:
     connectionSocket, addr = serverSocket.accept()
 
     #tell client server is ready for commands
-    connectionSocket.send("1")
+    connectionSocket.sendall("1".encode('utf-8'))
 
     #forever accept incoming commands
     while 1:
-        #receive command from client
         cmd = connectionSocket.recv(4)
+        print("cmd = ", cmd)
+        cmd = str(cmd)
+        cmd = cmd[2:-1]
 
         if cmd == "quit":
             print("received " , cmd)
-            connectionSocket.send("0")
+            connectionSocket.sendall("0".encode('utf-8'))
             break
 
         elif cmd == "ls":
@@ -66,15 +70,13 @@ while 1:
             print("Received ephemeral port: " , ephPort)
 
             #create connection for data transfer
-            servDataSock = socket(AF_INET, SOCK_STREAM)
+            servDataSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             servDataSock.connect(("localhost", ephPort))
-
+            
             #get path
             path = os.path.dirname(os.path.realpath(__file__))
-
             #get dir file lis
-            ls = os.listdir(path)
-
+            ls = str(os.listdir(path))
             #var to store the list
             lst = ""
             for value in ls:
@@ -90,13 +92,15 @@ while 1:
             #attach size to beginning of data
             lst = size + lst
 
-            bytesSent = 0
+            bytesSent = 1
 
             #send the data
-            while len(lst) > bytesSent:
-                bytesSent += servDataSock.send(lst[bytesSent:])
+            lenls = len(ls)
+            #while len(ls) > bytesSent:
+            servDataSock.sendall(str(lenls).encode('utf-8'))
+            servDataSock.sendall(str(ls).encode('utf-8'))
+            print("bytesSent = ", bytesSent)
 
-            #close connection
             servDataSock.close()
             #say server is ready for another command
-            connectionSocket.send("1")
+            connectionSocket.sendall(b"\"1\"")

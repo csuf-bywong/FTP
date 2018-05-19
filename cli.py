@@ -11,13 +11,6 @@ import os.path
 # @param numBytes - the number of bytes to receive
 # @return - the bytes received
 # *************************************************
-def tobits(s):
-    result = []
-    for c in s:
-        bits = bin(ord(c))[2:]
-        bits = '00000000'[len(bits):] + bits
-        result.extend([int(b) for b in bits])
-    return result
 
 def recvAll(sock, numBytes):
 
@@ -29,6 +22,7 @@ def recvAll(sock, numBytes):
 
 	# Keep receiving till all is received
 	while len(recvBuff) < numBytes:
+		print("tmpBuff = ", tmpBuff)
 
 		# Attempt to receive bytes
 		tmpBuff =  sock.recv(numBytes)
@@ -38,7 +32,8 @@ def recvAll(sock, numBytes):
 			break
 
 		# Add the received bytes to the buffer
-		recvBuff += tmpBuff
+		recvBuff += str(tmpBuff)
+		print("recvBuff = ", recvBuff)
 
 	return recvBuff
 
@@ -63,8 +58,7 @@ clientSocket.connect((serverIP, serverPort))
 while True:
     #determine if client is still connected to server
     flag = clientSocket.recv(9)
-    print(flag)
-    flag = 1
+    flag = int(flag)
 
     while flag == 1:
         #get user input
@@ -99,7 +93,7 @@ while True:
             fileSize = ""
 
             #receive first 10 bytes indicating file size
-            fileSize = recvAll(connectionSocket, 10)
+            fileSize = recvAll(connectionSocket, 0)
             print("The file size is " , fileSize)
             fileSize = int(fileSize)
 
@@ -130,7 +124,7 @@ while True:
             dataSocket = socket(AF_INET, SOCK_STREAM)
             dataSocket.bind(("", 0))
             print("I choose ephemeral port: " , dataSocket.getsockname()[1])
-            clientSocket.sendall((str(dataSocket.getsockname()[1])).encode('utf-8'))
+            clientSocket.send((str(dataSocket.getsockname()[1])).encode('utf-8'))
             dataSocket.listen(1)
 
             while 1:
@@ -138,11 +132,14 @@ while True:
                 connectionSocket, addr = dataSocket.accept()
 
                 #get size of incoming data from server
-                servSize = recvAll(connectionSocket, 10)
+                servSize = connectionSocket.recv(10)
+                #print(servSize)
                 servSize = int(servSize)
+                
 
                 #get the data from the server
-                servData = recvAll(connectionSocket, servSize)
+                servData = connectionSocket.recv(10000)
+                servData = servData[2:-1]
 
                 print("Size: " , servSize , "Received:")
                 print(servData)
@@ -153,7 +150,8 @@ while True:
 
         #elif cmd[0] == "lls":
         elif cmd[0] == "quit":
-            clientSocket.sendall(cmd[0].encode('utf-8'))
+            command = cmd[0]
+            clientSocket.sendall(command.encode('utf-8'))
             flag = clientSocket.recv(9)
             break
         elif cmd[0] == "":
