@@ -30,7 +30,7 @@ def recvAll(sock, numBytes):
 			break
 
 		# Add the received bytes to the buffer
-		recvBuff += tmpBuff
+		recvBuff += str(tmpBuff)
 
 	return recvBuff
 
@@ -53,9 +53,11 @@ clientSocket.connect((serverIP, int(serverPort)))
 
 while True:
     #determine if client is still connected to server
-    flag = clientSocket.recv(9)
+    flag = clientSocket.recv(10)
+    flag = int(flag)
+    print(flag)
 
-    while flag == "1":
+    while flag == 1:
         #get user input
         cmd = input("ftp> ").split(" ")
 
@@ -63,7 +65,7 @@ while True:
             if len(cmd) != 2:
                 print("USAGE get <file_name>")
             else:
-                clientSocket.send(cmd[0])
+                clientSocket.send(b(cmd[0]))
                 clientSocket.send(cmd[1])
                 print(cmd[0] , " " , cmd[1])
 
@@ -105,8 +107,8 @@ while True:
             connectionSocket.close()
 
         #elif command[0] == "put":
-        elif command[0] == "ls":
-            clientSocket.send(cmd[0])
+        elif cmd[0] == "ls":
+            clientSocket.send(cmd[0].encode('utf-8'))
 
             #the buffer to store server data
             servData = ""
@@ -116,9 +118,9 @@ while True:
 
             #generate ephemeral port
             dataSocket = socket(AF_INET, SOCK_STREAM)
-            dataSocket.bind("", 0)
+            dataSocket.bind(('', 0))
             print("I choose ephemeral port: " , dataSocket.getsockname()[1])
-            clientSocket.send(str(dataSocket.getsockname()[1]))
+            clientSocket.send(str(dataSocket.getsockname()[1]).encode('utf-8'))
             dataSocket.listen(1)
 
             while 1:
@@ -138,10 +140,9 @@ while True:
                 #get flag from server
                 flag = clientSocket.recv(9)
                 connectionSocket.close()
-
         #elif cmd[0] == "lls":
         elif cmd[0] == "quit":
-            clientSocket.send(cmd[0])
+            clientSocket.send(cmd[0].encode('utf-8'))
             flag = clientSocket.recv(9)
             break
         elif cmd[0] == "":
