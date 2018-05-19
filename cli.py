@@ -1,4 +1,4 @@
-#client code
+#client code 
 from socket import *
 import sys
 import os.path
@@ -110,7 +110,14 @@ while True:
             #close connection
             connectionSocket.close()
 
-        #elif command[0] == "put":
+        elif cmd[0] == "put":
+            clientSocket.sendall(cmd[0].encode('utf-8'))
+            print("Sent: ", cmd[0])
+            clientSocket.sendall(cmd[1].encode('utf-8'))
+            file = cmd[1]
+            file = open(file, 'r').read()
+            clientSocket.sendall(file.encode('utf-8'))
+            print("Sent: ", cmd[1])
         elif cmd[0] == "ls":
             clientSocket.sendall(cmd[0].encode('utf-8'))
 
@@ -127,28 +134,29 @@ while True:
             clientSocket.send((str(dataSocket.getsockname()[1])).encode('utf-8'))
             dataSocket.listen(1)
 
-            while 1:
-                #accept connection from server
-                connectionSocket, addr = dataSocket.accept()
+            #accept connection from server
+            connectionSocket, addr = dataSocket.accept()
 
-                #get size of incoming data from server
-                servSize = connectionSocket.recv(10)
-                #print(servSize)
-                servSize = int(servSize)
+            #get size of incoming data from server
+            servSize = connectionSocket.recv(10)
+            #print(servSize)
+            servSize = int(servSize)
                 
 
-                #get the data from the server
-                servData = connectionSocket.recv(10000)
-                servData = servData[2:-1]
+            #get the data from the server
+            servData = connectionSocket.recv(10000).decode('utf-8')
+            print("Size: " , servSize , "Received:")
+            print(servData)
 
-                print("Size: " , servSize , "Received:")
-                print(servData)
+            #get flag from server
+            flag = clientSocket.recv(9)
+            connectionSocket.close()
+            flag = 1
 
-                #get flag from server
-                flag = clientSocket.recv(9)
-                connectionSocket.close()
-
-        #elif cmd[0] == "lls":
+        elif cmd[0] == "lls":
+            path = os.path.dirname(os.path.realpath(__file__))
+            ls = os.listdir(path)
+            print(ls)
         elif cmd[0] == "quit":
             command = cmd[0]
             clientSocket.sendall(command.encode('utf-8'))

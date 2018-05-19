@@ -55,10 +55,7 @@ while 1:
 
     #forever accept incoming commands
     while 1:
-        cmd = connectionSocket.recv(4)
-        print("cmd = ", cmd)
-        cmd = str(cmd)
-        cmd = cmd[2:-1]
+        cmd = connectionSocket.recv(4).decode('utf-8')
 
         if cmd == "quit":
             print("received " , cmd)
@@ -97,10 +94,23 @@ while 1:
             #send the data
             lenls = len(ls)
             #while len(ls) > bytesSent:
-            servDataSock.sendall(str(lenls).encode('utf-8'))
+            servDataSock.send(str(lenls).encode('utf-8'))
             servDataSock.sendall(str(ls).encode('utf-8'))
             print("bytesSent = ", bytesSent)
 
             servDataSock.close()
             #say server is ready for another command
             connectionSocket.sendall(b"\"1\"")
+
+        elif cmd == "put":
+            fileName = connectionSocket.recv(20).decode('utf-8')
+            print("received ", cmd)
+            print("received filename ", fileName)
+            text = connectionSocket.recv(1000000).decode('utf-8')
+            file = open(fileName, 'w')
+            file.write(text)
+            file.close()
+            print(text)
+
+        elif cmd == "":
+            break
