@@ -64,6 +64,7 @@ while 1:
         elif cmd == "ls":
 			print("received " , cmd)
 			ephPort = connectionSocket.recv(10)
+			print(ephPort)
 			print("Received ephemeral port: " , int(ephPort))
 
             #create connection for data transfer
@@ -101,3 +102,5 @@ while 1:
 			servDataSock.close()
             #say server is ready for another command
 			connectionSocket.send("1")
+    else:
+			print("received other" , cmd)

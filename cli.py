@@ -59,7 +59,8 @@ while True:
 
     while flag == 1:
         #get user input
-        cmd = input("ftp> ").split(" ")
+        cmd = raw_input("ftp>").split(" ")
+        #cmd = input("ftp> ").split(" ")
 
         if cmd[0] == "get":
             if len(cmd) != 2:
@@ -120,8 +121,8 @@ while True:
             dataSocket = socket(AF_INET, SOCK_STREAM)
             dataSocket.bind(('', 0))
             print("I choose ephemeral port: " , dataSocket.getsockname()[1])
-            clientSocket.send(dataSocket.getsockname()[1])
-            #clientSocket.send(str(dataSocket.getsockname()[1]).encode('utf-8'))
+            #clientSocket.send(dataSocket.getsockname()[1])
+            clientSocket.send(str(dataSocket.getsockname()[1]).encode('utf-8'))
             dataSocket.listen(1)
 
             while 1:
