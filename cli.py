@@ -63,7 +63,7 @@ while True:
     while flag == 1:
         #get user input
         cmd = input("ftp> ").split(" ")
-
+        '''
         if cmd[0] == "get":
             if len(cmd) != 2:
                 print("USAGE get <file_name>")
@@ -109,8 +109,8 @@ while True:
 
             #close connection
             connectionSocket.close()
-
-        elif cmd[0] == "put":
+        '''
+        if cmd[0] == "put":
             clientSocket.sendall(cmd[0].encode('utf-8'))
             print("Sent: ", cmd[0])
             clientSocket.sendall(cmd[1].encode('utf-8'))
@@ -165,6 +165,24 @@ while True:
         elif cmd[0] == "":
             #if blank, do nothing
             pass
+
+        elif cmd[0] == "get":
+            clientSocket.sendall(cmd[0].encode('utf-8'))
+            #generate ephemeral port
+            dataSocket = socket(AF_INET, SOCK_STREAM)
+            dataSocket.bind(("", 0))
+            print("I choose ephemeral port: " , dataSocket.getsockname()[1])
+            clientSocket.send((str(dataSocket.getsockname()[1])).encode('utf-8'))
+            dataSocket.listen(1)
+
+            #accept connection from server
+            connectionSocket, addr = dataSocket.accept()
+            clientSocket.sendall(cmd[1].encode('utf-8'))
+            file = connectionSocket.recv(1000000).decode('utf-8')
+            writeFile = open(cmd[1], 'w')
+            writeFile.write(file)
+            writeFile.close()
+
         else:
             print("Invalid command.")
 

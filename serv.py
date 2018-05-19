@@ -94,7 +94,7 @@ while 1:
             #send the data
             lenls = len(ls)
             #while len(ls) > bytesSent:
-            servDataSock.send(str(lenls).encode('utf-8'))
+            servDataSock.sendall(str(lenls).encode('utf-8'))
             servDataSock.sendall(str(ls).encode('utf-8'))
             print("bytesSent = ", bytesSent)
 
@@ -111,6 +111,20 @@ while 1:
             file.write(text)
             file.close()
             print(text)
+ 
+        elif cmd == "get":
+            ephPort = int(connectionSocket.recv(10))
+            print("Received ephemeral port: " , ephPort)
+
+            #create connection for data transfer
+            servDataSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            servDataSock.connect(("localhost", ephPort))
+            fileName = connectionSocket.recv(20).decode('utf-8')            
+
+            file = open(fileName, 'r').read()
+            print("File contains ", file)
+            servDataSock.sendall(file.encode('utf-8'))
+            servDataSock.close()
 
         elif cmd == "":
             break
