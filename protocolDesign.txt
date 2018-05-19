@@ -1,0 +1,31 @@
+What kinds of messages will be exchanged across the control connection?
+The control connection will be used to send commands from the client to the server.
+The commands include 'lls', 'get', 'put', and 'quit'.
+The control connection is also used for the server to send the client a flag.
+The flag will indicate whether the server is ready to receive commands or not.
+Flag with value '1' means the server is ready.
+Flag with value '0' means the client is breaking the connection.
+
+How does the other side respond to each type of message?
+If server receives 'lls', then a list of files in the server's directory will be sent back through the data channel.
+If server receives 'quit', then it will send the client a flag of '0' causing the client to disconnect.
+If server receives 'get' and a file name, it will send the client a file through the data channel.
+If server receives 'put' and a file name, it will receive a file from the client through the data channel.
+Data channel is established by opening an ephemeral port, which will make a second connection between client and server.
+After data channel is established, data will be sent over the channel.  This happens while the control connection is still open.
+
+What sizes/formats will the messages have?
+Control commands will be sent through the connection as a bytes-like object.
+When reaching either server or client side, the object will be decoded into the appropriate format for use in the code.
+The flags are also sent through the connection as a bytes-like object and will be decoded to the appropriate format.
+
+What message exchanges have to take place in order to setup a file transfer channel?
+Client sends command, either 'put' or 'get', to the server as well as the file name.
+Server will establish a ephemeral port connection.
+Once the connection is established, the client or server will locate the file.
+10 bytes indicating the file size will be sent to the client or server followed by the file data.
+Client or server will stop receiving data when the indicated file size is reached.
+
+How will the receiving side know when to start/stop receiving the file?
+A size will be first send to the receving side.
+Receiving side will know when to stop receiving the file when the indicated file size is reached.
