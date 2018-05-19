@@ -27,5 +27,5 @@ Once the connection is established, the client or server will locate the file.
 Client or server will stop receiving data when the indicated file size is reached.
 
 How will the receiving side know when to start/stop receiving the file?
-A size will be first send to the receving side.
+A size will be first send to the receiving side.
 Receiving side will know when to stop receiving the file when the indicated file size is reached.
