@@ -120,7 +120,8 @@ while True:
             dataSocket = socket(AF_INET, SOCK_STREAM)
             dataSocket.bind(('', 0))
             print("I choose ephemeral port: " , dataSocket.getsockname()[1])
-            clientSocket.send(str(dataSocket.getsockname()[1]).encode('utf-8'))
+            clientSocket.send(dataSocket.getsockname()[1])
+            #clientSocket.send(str(dataSocket.getsockname()[1]).encode('utf-8'))
             dataSocket.listen(1)
 
             while 1:
@@ -140,7 +141,14 @@ while True:
                 #get flag from server
                 flag = clientSocket.recv(9)
                 connectionSocket.close()
-        #elif cmd[0] == "lls":
+        elif cmd[0] == "lls":
+            #get the path of client files
+            path = os.path.dirname(os.path.realpath(__file__))
+            #get list of files in the directory
+            lls = os.listdir(path)
+            #print list
+            for value in lls:
+                print(value)
         elif cmd[0] == "quit":
             clientSocket.send(cmd[0].encode('utf-8'))
             flag = clientSocket.recv(9)
